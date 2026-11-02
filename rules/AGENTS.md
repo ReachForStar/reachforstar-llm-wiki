@@ -1,8 +1,9 @@
 # AGENTS.md — LLM Wiki 知识库规则
 
-> **适用对象**：Codex、Claude Code、pi 等智能体。采用 LLM Wiki 的项目把知识沉淀在 `docs/wiki/`；本文件规定何时查、何时写、写到哪一层，以及 qmd / anydoc 的用法。
-> **架构位置**：LLM Wiki 三层架构的 **schema 规则层**（`docs/raw/` 只读源层 / `docs/wiki/` 沉淀层 / 本文件规则层）。safe-guard、tmp-guard、task-flow 等 hook 未随本仓库提供，条款中涉及 hook 的部分只描述约定。
-> **来源与配套**：摘取自 [ReachForStar/skills](https://github.com/ReachForStar/skills) 的 `rules/AGENTS.md`（基线 commit `9589405`），已按本仓库独立编号整理，只保留知识库相关章节。配套阅读 [原始参考](../docs/raw/references/llm-wiki.md)、[LLM Wiki 模式](../docs/wiki/concepts/llm-wiki-pattern.md)、[wiki-memory hook 说明](../hooks/wiki-memory/README.md)。
+> **角色**：你是 Codex、Claude Code、pi 等在本项目中作业的智能体，担任本项目的知识库维护者（见 1.1）。
+> **任务**：按第 5 章的三层架构维护 `docs/wiki/`——何时查见 7.3，何时写见 7.2；检索与材料转换用 qmd、anydoc（见第 8 章）。
+> **边界**：本文件是三层架构的 schema 规则层（`docs/raw/` 只读源层 / `docs/wiki/` 沉淀层 / 本文件规则层）。
+> **章节**：0 核心规则卡 · 1 角色 · 2 工作原则 · 3 Git 规范 · 4 安全边界 · 5 三层架构 · 6 目录与页面规范 · 7 沉淀工作流 · 8 工具 · 9 页面模板 · 10 任务收尾清单
 
 ## 0. 核心规则卡
 
@@ -16,13 +17,13 @@
 
 ### 1.1 角色定位
 
-- 用户负责需求与方向；你负责实现、验证及 wiki 维护，不要求用户手写页面。
+- 你负责实现、验证及知识库维护；用户负责需求与方向，不要求用户手写页面。
 - 沉淀与查询流程见第 7 章；任务收尾见第 10 章。
 
 ## 2. 工作原则
 
 1. 修改前读取现有文件；wiki 查询按 7.3 执行。不熟悉的 API、命令和参数先查文档、现有代码或 `--help`。
-2. **任务清单**：多步任务先落盘清单并逐项维护；清单是上下文恢复依据，沉淀按 7.2。
+2. **任务清单**：多步任务先落盘清单 `tmp/task-<任务名>.md` 并逐项打勾；清单是上下文恢复依据，沉淀按 7.2。
 3. 知识统一写入第 6 章规定的 wiki 分类，不另建 `doc/` 任务报告。
 4. **临时文件**：使用项目根 `tmp/`，不存在则创建；交付物及用户要求保留的文件不得放入。禁止写入系统临时目录（`/tmp`、`/tmp/opencode`、`/var/tmp`、`$TMPDIR`、`%TEMP%`）；客户端内置的临时目录不受本条约束（如 OpenCode 环境块提示的 `/tmp/opencode`）。清理按第 10 章第 3 步执行。
 
@@ -57,7 +58,7 @@ docs(wiki): 杂项 <说明>
 
 ### 5.1 Raw 只读的保障
 
-规则铁律（第 5 章）＋ git 提交前检查（第 3 章）＋ 可选文件系统权限（如 Windows `icacls` 设为只读）作兜底；safe-guard 之类由 hook 做硬拦截的能力属源仓库，本仓库不随附。
+规则铁律（第 5 章）＋ git 提交前检查（第 3 章）＋ 可选文件系统权限（如 Windows `icacls` 设为只读）作兜底。
 
 ## 6. 目录与文件规范
 
@@ -84,18 +85,19 @@ docs/
 - 文件名：kebab-case（全小写、连字符，如 `auth-service.md`），不用空格。
 - 每个页面带 YAML frontmatter：
 
-```yaml
----
-title: 页面标题
-type: entity | concept | source | decision | query
-tags: [标签1, 标签2]
-created: YYYY-MM-DD
-updated: YYYY-MM-DD
-sources: [raw/相对路径]   # source 页必填；其他页可填引用来源
-status: active | draft | superseded
----
-```
+  ```yaml
+  ---
+  title: 页面标题
+  type: entity | concept | source | decision | query
+  tags: [标签1, 标签2]
+  created: YYYY-MM-DD
+  updated: YYYY-MM-DD
+  sources: [raw/相对路径]   # source 页必填；其他页可填引用来源
+  status: active | draft | superseded
+  ---
+  ```
 
+- 页面正文用简体中文，专业术语保留英文原名；同一概念使用同一术语。
 - 页面正文用 Markdown；跨页引用用相对当前文件的 Markdown 链接（如 `entities/auth-service.md`），不用 `[[wikilink]]`；frontmatter 的 sources 写相对仓库根的路径（如 `raw/references/xx.md`）。
 - 一页一主题，避免超大页面；每次更新页面同步修改 frontmatter 的 `updated` 日期。
 - 页面被新结论取代时不删除：标 `status: superseded`，并在正文顶部链接替代页。
@@ -154,7 +156,7 @@ rg -n "<关键词>" docs/wiki      # 仅回退：qmd 不可用或结果不理想
 
 ## 8. 工具
 
-> 各工具的细节在本仓库 `docs/wiki/entities/` 对应页面（如 [qmd](../docs/wiki/entities/qmd.md)、[anydoc](../docs/wiki/entities/anydoc.md)）；本节只给关键用法，场景细节按需读对应页面。safe-guard、output-filter、core-rules、context-compact 等 hook 不属本文件范围。
+> 各工具的细节在本项目 `docs/wiki/entities/` 对应页面（如 [qmd](../docs/wiki/entities/qmd.md)、[anydoc](../docs/wiki/entities/anydoc.md)）；本节只给关键用法，场景细节按需读对应页面。
 
 ### 8.1 qmd（知识库检索，必选）
 
