@@ -10,7 +10,7 @@ LLM Wiki 知识库模式与 `wiki-memory` hook 的独立仓库：让 AI 编码�
 | --- | --- |
 | `hooks/wiki-memory/` | hook 实现：pi 扩展 `wiki-memory.ts`、Claude Code / Codex / Qoder 共享脚本 `wiki-memory-hook.mjs`、OpenCode 桥接插件 `reachforstar-wiki-memory.js`、`snippets/` 两端配置示例、[组件说明](hooks/wiki-memory/README.md) |
 | `rules/llm-wiki.md` | LLM Wiki 模式原始参考文档（三层架构与操作方法） |
-| `rules/AGENTS.md` | schema 规则层：知识库三层架构、沉淀/查询/检查工作流与页面模板在第 9–14 章 |
+| `rules/AGENTS.md` | schema 规则层：摘取源仓库规则中与知识库相关的章节——三层架构、目录与页面规范、沉淀/查询/检查工作流、页面模板、qmd 与 anydoc 用法 |
 | `docs/raw/references/llm-wiki.md` | raw 只读源层中的原始材料，内容与 `rules/llm-wiki.md` 相同 |
 | `docs/wiki/` | 沉淀层：15 篇主题页面 + [内容索引](docs/wiki/index.md) + [操作日志](docs/wiki/log.md) |
 | `test/wiki-memory.test.mjs` | hook 的行为测试（失效集合重绑、Qoder 项目级 MCP 写入与幂等、非 Qoder 不建目录） |
@@ -83,7 +83,7 @@ npm test    # node --test test/*.test.mjs
   | 未包含页面 | 被哪些页面引用 |
   | --- | --- |
   | `entities/installer.md` | wiki-memory hook、qmd 检索与 MCP 双失效 |
-  | `entities/safe-guard-hook.md` | 知识消费回路、`rules/AGENTS.md` |
+  | `entities/safe-guard-hook.md` | 知识消费回路 |
   | `entities/task-flow-hook.md` | 知识消费回路 |
   | `entities/dsh.md` | qmd MCP 必选决策 |
   | `decisions/rules-slim-and-core-rules.md` | wiki-memory hook、qmd、anydoc |
@@ -92,7 +92,7 @@ npm test    # node --test test/*.test.mjs
   | `decisions/installer-dsh-and-mcp-type.md` | qmd MCP 必选决策 |
   | `queries/windows-shell-pitfalls.md` | wiki-memory hook、qmd get 路径解析 |
 
-- **`rules/AGENTS.md` 按原文完整复制**：第 9–14 章是本仓库主题（三层架构、沉淀/查询/检查流程、页面模板），其余章节（git 规范、代码风格、其他 hook）属于源仓库项目，保留原文以避免两仓分叉出两份不一致的规则。文件内 `docs/wiki/...` 链接按仓库根书写，其中指向未包含页面的部分同上表。
+- **`rules/AGENTS.md` 只摘取知识库相关章节**：收录源文件第 0（核心规则卡相关条款）、1.1、2（工作原则相关条款）、6（git 的知识库相关条款）、8（知识沉淀特化）、9、10、11、12（qmd / glow / 命令行 / anydoc）、13、14（知识库相关步骤）章。其余通用工程规范（语言与输出、代码风格、测试与检查、会话架构、git 的分支与 PR 流程、环境规范，以及 safe-guard、output-filter、core-rules、context-compact 等 hook）不收录。**章节号沿用源文件编号**，因此章号不连续；条款内出现「见第 N 章」这类指向未收录章节的引用时，按源仓库对应章节查看。文件内的相对链接按文件所在位置改写为 `../docs/...`（源文件同类链接按仓库根书写，在源仓库里也解析不到）。
 - **复制页内仍有指向源仓库的引用**：除上表 9 篇页面外，`entities/qmd.md` 与 `decisions/qmd-native-mcp-required.md` 引用了源仓库代码文件 `bin/mcp-install.mjs`（该链接写作 `../../bin/mcp-install.mjs`，在源仓库里相对路径也少写一层，已指向不存在的位置）。本仓库不含 `bin/`，这类引用统一按源仓库处理。
 - **内容快照，不与源仓库双向同步**：复制件在初始化提交（基线 commit `9589405`）时与源仓库逐字节一致；源仓库此后对 `docs/wiki/entities/wiki-memory-hook.md` 追加了本次拆分的变更记录（其中链接的 `decisions/llm-wiki-repo-split.md` 只存在于源仓库），本仓库未同步这类增量，需要最新内容时回源仓库取。
 
