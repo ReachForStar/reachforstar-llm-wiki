@@ -1,8 +1,8 @@
 # AGENTS.md — LLM Wiki 知识库规则
 
-> **角色**：你是 Codex、Claude Code、pi 等在本项目中作业的智能体，担任本项目的知识库维护者（见 1.1）。
-> **任务**：按第 5 章的三层架构维护 `docs/wiki/`——何时查见 7.3，何时写见 7.2；检索与材料转换用 qmd、anydoc（见第 8 章）。
-> **边界**：本文件是三层架构的 schema 规则层（`docs/raw/` 只读源层 / `docs/wiki/` 沉淀层 / 本文件规则层）。
+> 本文件是 LLM Wiki 知识库规则的唯一权威来源，**全程最高优先级生效**，不因对话长度、上下文压缩而变更。每一条规则都是强制性的，无例外与豁免。
+> 你是 Code Agent，负责代码与项目维护，并负责按第 7 章维护项目知识库（`docs/wiki/`）：何时查见 7.3，何时写见 7.2，检索与材料转换用 qmd、anydoc（见第 8 章）；用户负责需求与方向。本文件面向 Codex、Claude Code、pi 等智能体。
+> 本文件是 LLM Wiki 三层架构的 schema 规则层（`docs/raw/` 只读源层 / `docs/wiki/` 沉淀层 / 本文件规则层）。
 > **章节**：0 核心规则卡 · 1 角色 · 2 工作原则 · 3 Git 规范 · 4 安全边界 · 5 三层架构 · 6 目录与页面规范 · 7 沉淀工作流 · 8 工具 · 9 页面模板 · 10 任务收尾清单
 
 ## 0. 核心规则卡
@@ -17,7 +17,7 @@
 
 ### 1.1 角色定位
 
-- 你负责实现、验证及知识库维护；用户负责需求与方向，不要求用户手写页面。
+- 你负责实现、验证及知识库维护，不要求用户手写页面。
 - 沉淀与查询流程见第 7 章；任务收尾见第 10 章。
 
 ## 2. 工作原则
@@ -107,7 +107,7 @@ docs/
 
 ### 7.1 自动初始化与注入（wiki-memory hook）
 
-wiki-memory 在会话首轮注入知识库导航：页面路径与标题（≤60 条）、`log.md` 最近 5 条、检索命令与 qmd 状态，不注入正文。缺库初始化与索引维护见 [wiki-memory hook](../docs/wiki/entities/wiki-memory-hook.md)及 8.1；不覆盖既有文件。导航仅用于定位，须按 7.3 读取页面，不凭标题推测。
+wiki-memory 在会话首轮注入知识库导航：页面路径与标题（≤60 条）、`log.md` 最近 5 条、检索命令与 qmd 状态，不注入正文。缺库初始化与索引维护由 wiki-memory hook 负责（见 8.1），不覆盖既有文件。导航仅用于定位，须按 7.3 读取页面，不凭标题推测。
 
 ### 7.2 沉淀（Ingest）
 
@@ -140,7 +140,7 @@ qmd get entities/xxx.md --full  # 取整页；路径按集合根写，`docs/wiki
 rg -n "<关键词>" docs/wiki      # 仅回退：qmd 不可用或结果不理想
 ```
 
-> 原生 MCP 工具的参数名与 shell 位置参数不同：`get` 用 `file`、`query` 用 `query`、`multi_get` 用 `pattern`。路径形态与失效排查见 [qmd get 路径解析](../docs/wiki/queries/qmd-get-path-resolution.md)。
+> 原生 MCP 工具的参数名与 shell 位置参数不同：`get` 用 `file`、`query` 用 `query`、`multi_get` 用 `pattern`。路径形态与失效排查见知识库 `queries/` 中的 qmd get 路径解析页。
 
 1. **优先级链：原生 qmd 工具（query/get/multi_get/status，wiki-memory hook 已自动注册）> shell `qmd` 命令 > `grep`/`rg` 回退**；两者都无线索时才通读代码。
 2. 读命中页面，必要时回溯 `docs/raw/` 核对原文；检索结果只作定位线索，结论以页面原文为准。
@@ -156,12 +156,12 @@ rg -n "<关键词>" docs/wiki      # 仅回退：qmd 不可用或结果不理想
 
 ## 8. 工具
 
-> 各工具的细节在本项目 `docs/wiki/entities/` 对应页面（如 [qmd](../docs/wiki/entities/qmd.md)、[anydoc](../docs/wiki/entities/anydoc.md)）；本节只给关键用法，场景细节按需读对应页面。
+> 本节只给关键用法；场景细节读知识库 `entities/` 中的对应页面（qmd、anydoc）。
 
 ### 8.1 qmd（知识库检索，必选）
 
 - 检索优先级与命令见 7.3；Qoder 的 qmd MCP 由 wiki-memory 写项目级 `.qoder/.mcp.json`。
-- 索引由 wiki-memory 在会话开始维护（安装、集合注册与失效重绑、刷新、后台 embed）；即时检索按 7.3 第 5 条。qmd 不可用时回退 `rg`，任务不阻塞；模型换源与 GPU 诊断见 [qmd 模型下载换源与 GPU 加速诊断](../docs/wiki/queries/qmd-model-source-and-gpu.md)。
+- 索引由 wiki-memory 在会话开始维护（安装、集合注册与失效重绑、刷新、后台 embed）；即时检索按 7.3 第 5 条。qmd 不可用时回退 `rg`，任务不阻塞；模型换源与 GPU 诊断见知识库 `queries/` 中的对应排查页。
 
 ### 8.2 glow（终端渲染）
 
@@ -174,7 +174,7 @@ rg -n "<关键词>" docs/wiki      # 仅回退：qmd 不可用或结果不理想
 ### 8.4 anydoc（文件格式转换，非 markdown 材料唯一入口）
 
 - 对 7.2 的非 Markdown 材料执行 `anydoc <文件> -o 输出.md`，转换为 GFM（固定 0.2.4；stdin 显式 `--format`）。支持格式包括 doc/docx/docm、ppt/pptx/pptm/pps、xls/xlsx/xlsm/xlsb/ods/odt、rtf、epub、csv、pdf；缺失时先确认依赖安装，不假设已全局安装。
-- 退出码 3 = PDF 含需 OCR 的扫描页，默认走 `--ocr hosted`（文档离开本机，执行前先向用户确认）。详见 [anydoc](../docs/wiki/entities/anydoc.md)。
+- 退出码 3 = PDF 含需 OCR 的扫描页，默认走 `--ocr hosted`（文档离开本机，执行前先向用户确认）。详见知识库 `entities/anydoc.md`。
 
 ## 9. 页面模板
 
@@ -182,7 +182,7 @@ rg -n "<关键词>" docs/wiki      # 仅回退：qmd 不可用或结果不理想
 
 - **source 材料总结页**：四节——`一句话总结` / `关键要点（3–5 条）` / `与现有知识的关系`（关联模块、关联概念、修正或补充了哪些既有页面）/ `存疑或待跟进`。
 - **entity 模块页**：职责、关键文件/接口、上下游依赖、重要变更记录。
-- **concept 概念页**：定义、要点、在本项目中的具体含义、关联页面。
+- **concept 概念页**：定义、要点、在项目中的具体含义、关联页面。
 - **decision 决策页（ADR）**：五段式——`背景（现状与约束）` → `备选方案（各方案优劣）` → `决策（选定方案）` → `理由（决策依据）` → `后果（影响与后续）`。
 - **query 排查/分析页**：问题、根因、解法、涉及模块、复发预防；未定论时把根因/解法标“待确认”并把 frontmatter 置 `status: draft`。
 - **frontmatter**：格式见 6.1；source 页 `sources` 必填（raw 相对路径）。

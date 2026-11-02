@@ -92,7 +92,7 @@ npm test    # node --test test/*.test.mjs
   | `decisions/installer-dsh-and-mcp-type.md` | qmd MCP 必选决策 |
   | `queries/windows-shell-pitfalls.md` | wiki-memory hook、qmd get 路径解析 |
 
-- **`rules/AGENTS.md` 只收录知识库相关章节，且已重新编号**：收录源文件第 0（核心规则卡相关条款）、1.1、2（工作原则相关条款）、6（git 的知识库相关条款）、8（知识沉淀特化）、9、10、11、12（qmd / glow / 命令行 / anydoc）、13、14（第 2–4 步）章，删去与知识库无关的通用工程规范（语言与输出、代码风格、测试与检查、会话架构、git 的分支与 PR 流程、环境规范，以及 safe-guard、output-filter、core-rules、context-compact 等 hook）。内容按本仓库重新连续编号（章 0–10、小节与条款亦连续），来源与整理边界写在文件开头。文件内的相对链接按文件所在位置改写为 `../docs/...`（源文件同类链接按仓库根书写，在源仓库里也解析不到）。
+- **`rules/AGENTS.md` 只收录知识库相关章节，且已重新编号**：收录源文件第 0（核心规则卡相关条款）、1.1、2（工作原则相关条款）、6（git 的知识库相关条款）、8（知识沉淀特化）、9、10、11、12（qmd / glow / 命令行 / anydoc）、13、14（第 2–4 步）章，删去与知识库无关的通用工程规范（语言与输出、代码风格、测试与检查、会话架构、git 的分支与 PR 流程、环境规范，以及 safe-guard、output-filter、core-rules、context-compact 等 hook）。内容按本仓库重新连续编号（章 0–10、小节与条款亦连续）；开头写明本文件是知识库规则的唯一权威来源与角色。文件按通用规则写，不含指向本仓库页面的链接，工具细节按知识库 `entities/`、`queries/` 定位。
 - **复制页内仍有指向源仓库的引用**：除上表 9 篇页面外，`entities/qmd.md` 与 `decisions/qmd-native-mcp-required.md` 引用了源仓库代码文件 `bin/mcp-install.mjs`（该链接写作 `../../bin/mcp-install.mjs`，在源仓库里相对路径也少写一层，已指向不存在的位置）。本仓库不含 `bin/`，这类引用统一按源仓库处理。
 - **内容快照，不与源仓库双向同步**：复制件在初始化提交（基线 commit `9589405`）时与源仓库逐字节一致；源仓库此后对 `docs/wiki/entities/wiki-memory-hook.md` 追加了本次拆分的变更记录（其中链接的 `decisions/llm-wiki-repo-split.md` 只存在于源仓库），本仓库未同步这类增量，需要最新内容时回源仓库取。
 
