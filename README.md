@@ -94,7 +94,7 @@ npm test    # node --test test/*.test.mjs
 
 - **`rules/AGENTS.md` 按原文完整复制**：第 9–14 章是本仓库主题（三层架构、沉淀/查询/检查流程、页面模板），其余章节（git 规范、代码风格、其他 hook）属于源仓库项目，保留原文以避免两仓分叉出两份不一致的规则。文件内 `docs/wiki/...` 链接按仓库根书写，其中指向未包含页面的部分同上表。
 - **复制页内仍有指向源仓库的引用**：除上表 9 篇页面外，`entities/qmd.md` 与 `decisions/qmd-native-mcp-required.md` 引用了源仓库代码文件 `bin/mcp-install.mjs`（该链接写作 `../../bin/mcp-install.mjs`，在源仓库里相对路径也少写一层，已指向不存在的位置）。本仓库不含 `bin/`，这类引用统一按源仓库处理。
-- 除 `docs/wiki/index.md`、`docs/wiki/log.md` 与本 README、`package.json` 外，其余文件与源仓库逐字节一致。
+- **内容快照，不与源仓库双向同步**：复制件在初始化提交（基线 commit `9589405`）时与源仓库逐字节一致；源仓库此后对 `docs/wiki/entities/wiki-memory-hook.md` 追加了本次拆分的变更记录（其中链接的 `decisions/llm-wiki-repo-split.md` 只存在于源仓库），本仓库未同步这类增量，需要最新内容时回源仓库取。
 
 ## 许可
 
