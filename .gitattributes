@@ -1,0 +1,48 @@
+# 行尾约定：工作区统一 CRLF（Windows 用户可见格式）；git 规范化存储为 LF（core.autocrlf=true）。
+# eol=crlf 对非 Windows 机器同样强制工作区 CRLF；二进制扩展不参与转换。
+* text=auto eol=crlf
+
+# Unix 敏感文件豁免：换行符错误会直接导致脚本/构建失败，强制 LF
+*.sh text eol=lf
+*.bash text eol=lf
+Dockerfile* text eol=lf
+Makefile* text eol=lf
+*.patch text eol=lf
+*.diff text eol=lf
+hooks/git-pre-commit/pre-commit text eol=lf
+# pyc 是二进制（.gitignore 已忽略，此处兜底）
+
+# 二进制：不参与行尾转换与文本检测（text=auto 对模糊内容可能误判，显式声明兜底）
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.bmp binary
+*.tiff binary
+*.pdf binary
+*.doc binary
+*.docx binary
+*.xls binary
+*.xlsx binary
+*.ppt binary
+*.pptx binary
+*.zip binary
+*.7z binary
+*.rar binary
+*.gz binary
+*.tar binary
+*.mp3 binary
+*.wav binary
+*.mp4 binary
+*.avi binary
+*.mov binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.jar binary
+*.so binary
+*.pyc binary
+*.heapsnapshot binary

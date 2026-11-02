@@ -1,0 +1,16 @@
+.remember/
+node_modules/
+*.log
+.DS_Store
+__pycache__/
+*.pyc
+/tmp/
+skills/cnki/data/
+.claude/
+.qmd/
+# Qoder 项目级 MCP 注册（wiki-memory hook 写入，含本机绝对路径）
+.qoder/
+# 环境变量文件（含密钥，防误提交；示例文件可入库）
+.env
+.env.*
+!.env.example

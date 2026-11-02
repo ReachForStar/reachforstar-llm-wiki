@@ -1,0 +1,24 @@
+{
+  "name": "reachforstar-llm-wiki",
+  "version": "0.1.0",
+  "description": "LLM Wiki 知识库模式与 wiki-memory hook：自动建库、注入导航、把 qmd 检索准备到可用",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "keywords": [
+    "llm-wiki",
+    "knowledge-base",
+    "hook",
+    "qmd",
+    "pi",
+    "claude-code",
+    "codex",
+    "opencode",
+    "qoder"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}
