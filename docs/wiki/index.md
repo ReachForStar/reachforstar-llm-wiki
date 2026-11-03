@@ -1,6 +1,6 @@
 ---
 type: index
-updated: 2026-11-02
+updated: 2026-11-03
 ---
 
 # Wiki 索引
@@ -12,7 +12,7 @@ updated: 2026-11-02
 
 ## 主题总览
 
-- 机制入口：[wiki-memory hook](entities/wiki-memory-hook.md) 在会话首轮注入目录树与检索命令；[LLM Wiki 模式](concepts/llm-wiki-pattern.md) 给出三层知识库架构定义。
+- 机制入口：[wiki-memory hook](entities/wiki-memory-hook.md) 在会话首轮注入目录树与检索命令；[安装器](entities/wiki-memory-installer.md) 只装 hooks 与 qmd MCP，规则文件自己复制；[LLM Wiki 模式](concepts/llm-wiki-pattern.md) 给出三层知识库架构定义。
 - 检索工具：[qmd](entities/qmd.md) 是 wiki 检索的必选项；[index vs embedding](concepts/embedding-vs-index.md) 区分导航与检索两种消费方式。
 - 材料入口：[anydoc](entities/anydoc.md) 是非 markdown 材料转 markdown 的唯一通道，见[对应决策](decisions/llm-wiki-markdown-anydoc.md)。
 - 闭环视角：[知识消费回路](concepts/knowledge-consumption-loop.md) 连接沉淀、注入、引用与再沉淀。
@@ -22,6 +22,7 @@ updated: 2026-11-02
 - [wiki-memory hook（知识库自动注入）](entities/wiki-memory-hook.md) — 自动建库；首轮注入目录树与检索命令（不注入正文）；把 qmd 准备到可用（后台自动安装、建索引、失效集合重绑、Qoder 项目级 MCP 注册）
 - [qmd（本地知识库检索工具）](entities/qmd.md) — BM25＋向量＋重排三合一本地检索；安装、索引范围、命令、换源与 GPU 加速；集合定位契约与五端 MCP 注册位置
 - [anydoc（文件格式转换）](entities/anydoc.md) — doc/ppt/xls/pdf/csv 等转 GFM markdown；固定版本 0.2.4、退出码含义与 OCR 边界
+- [wiki-memory 安装器（hooks 与 qmd MCP）](entities/wiki-memory-installer.md) — 只装 hooks 与 qmd MCP；规则文件由使用者自己复制；五端落点、幂等、备份与 dry-run 契约
 
 ## 概念 concepts
 

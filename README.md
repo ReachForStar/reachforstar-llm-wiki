@@ -12,8 +12,10 @@ LLM Wiki 知识库模式与 `wiki-memory` hook 的独立仓库：让 AI 编码�
 | `rules/llm-wiki.md` | LLM Wiki 模式原始参考文档（三层架构与操作方法） |
 | `rules/AGENTS.md` | schema 规则层：摘取源仓库规则中与知识库相关的章节——三层架构、目录与页面规范、沉淀/查询/检查工作流、页面模板、qmd 与 anydoc 用法 |
 | `docs/raw/references/llm-wiki.md` | raw 只读源层中的原始材料，内容与 `rules/llm-wiki.md` 相同 |
-| `docs/wiki/` | 沉淀层：15 篇主题页面 + [内容索引](docs/wiki/index.md) + [操作日志](docs/wiki/log.md) |
+| `bin/install.mjs` | hooks 与 qmd MCP 安装器（规则文件由使用者自己复制替换） |
+| `docs/wiki/` | 沉淀层：16 篇主题页面（15 篇复制 + 安装器页）+ [内容索引](docs/wiki/index.md) + [操作日志](docs/wiki/log.md) |
 | `test/wiki-memory.test.mjs` | hook 的行为测试（失效集合重绑、Qoder 项目级 MCP 写入与幂等、非 Qoder 不建目录） |
+| `test/install.test.mjs` | 安装器测试（五端落点、幂等、保留既有配置、dry-run 不写文件、pi MCP 合并） |
 
 ## 这套东西解决什么问题
 
@@ -27,24 +29,45 @@ LLM Wiki 知识库模式与 `wiki-memory` hook 的独立仓库：让 AI 编码�
 
 ## 安装
 
-依赖 Node.js；检索工具 [qmd](https://github.com/tobi/qmd) 需 Node ≥ 22，未安装时 hook 会后台执行 `npm install -g @tobilu/qmd`（`WIKI_MEMORY_INSTALL_QMD=0` 关闭），本次会话自动降级为 `rg` 检索。
+分两步：**规则文件自己复制替换**，**hooks 与 qmd MCP 交给本仓库的安装器**。
+
+### 1. 规则文件（自己替换）
+
+把 `rules/AGENTS.md` 复制为项目根 `AGENTS.md`；目标文件已有内容会被替换，先自行备份差异。`rules/llm-wiki.md` 是三层的原始参考文档，可选。
 
 ```bash
-# pi：扩展目录内文件名保持 wiki-memory.ts，由 pi 自带运行时加载
-cp hooks/wiki-memory/wiki-memory.ts ~/.pi/agent/extensions/
-
-# Claude Code / Codex / Qoder CLI：脚本目录 + 合并 SessionStart 配置
-mkdir -p ~/.wiki-memory && cp hooks/wiki-memory/wiki-memory-hook.mjs ~/.wiki-memory/
-# 把 hooks/wiki-memory/snippets/claude-settings.json 的 hooks 合并进 ~/.claude/settings.json
-# 把 hooks/wiki-memory/snippets/codex-hooks.json 的 hooks 合并进 ~/.codex/hooks.json
-
-# OpenCode：桥接插件
-cp hooks/wiki-memory/reachforstar-wiki-memory.js ~/.config/opencode/plugins/
+cp rules/AGENTS.md <项目根>/AGENTS.md
+cp rules/llm-wiki.md <项目根>/docs/raw/references/llm-wiki.md   # 可选
 ```
 
-Codex 对 hook 有信任校验，首次进入交互模式需确认信任。各端配置文件路径与 Qoder 项目级 `.qoder/.mcp.json` 的写入细节见 [qmd 检索与 MCP 双失效排查](docs/wiki/queries/qmd-stale-collection-path-and-mcp-cwd.md)。
+### 2. hooks 与 qmd MCP（安装器）
 
-环境变量开关：
+依赖 Node.js ≥18；检索工具 [qmd](https://github.com/tobi/qmd) 需 Node ≥22，未安装时 hook 在会话开始后台执行 `npm install -g @tobilu/qmd`（`WIKI_MEMORY_INSTALL_QMD=0` 关闭），当次会话降级为 `rg` 检索。
+
+```bash
+node bin/install.mjs --list                                # 查看各端落点
+node bin/install.mjs --dry-run                            # 预览将改动的文件
+node bin/install.mjs --yes                                # 装 hooks + qmd MCP
+node bin/install.mjs --agent pi,claude --type hooks --yes  # 只装指定端与内容
+```
+
+安装器只处理 hooks 与 MCP，不碰规则文件；覆盖前备份为 `<文件>.bak-<时间戳>`（`--no-backup` 关闭），重复执行幂等。
+
+| 端 | hooks 落点 | qmd MCP |
+| --- | --- | --- |
+| pi | `~/.pi/agent/extensions/wiki-memory.ts` | 合并 `~/.pi/agent/mcp.json` 的 `mcpServers.qmd` |
+| Claude Code | `~/.claude/settings.json` 的 `hooks.SessionStart`，脚本 `~/.wiki-memory/wiki-memory-hook.mjs` | `claude mcp add --scope user qmd -- qmd mcp` |
+| Codex | `~/.codex/hooks.json` 的 `hooks.SessionStart`，脚本同上 | `codex mcp add qmd -- qmd mcp` |
+| OpenCode | `<配置根>/plugins/reachforstar-wiki-memory.js`（配置根随 `XDG_CONFIG_HOME`） | 桥接插件运行时注入 `mcp.qmd`，不写配置 |
+| Qoder CLI | `<配置根>/settings.json`（取 `$QODER_CONFIG_DIR`，否则 `~/.qoder-cn`、`~/.qoder`），脚本同上 | hook 在会话启动写项目级 `<项目根>/.qoder/.mcp.json` |
+
+生效条件：pi 只在进程启动时加载扩展，运行中的会话执行 `/reload` 或重启；Codex 首次进入交互模式需确认信任 hook；Qoder CLI 只在会话启动时读 `settings.json`，需重启。Claude Code / Codex 的 MCP 用各自 CLI 注册，CLI 不在 PATH 时按输出提示手动执行，可用 `MCP_CLI_CLAUDE`、`MCP_CLI_CODEX` 指向绝对路径。
+
+不使用安装器时：复制 `hooks/wiki-memory/` 下的对应文件（pi 用 `wiki-memory.ts`，OpenCode 用 `reachforstar-wiki-memory.js`，其余端用 `wiki-memory-hook.mjs`），再把 `snippets/claude-settings.json`、`snippets/codex-hooks.json` 的 `hooks` 合并进目标配置。
+
+### 环境变量
+
+开关一律在运行时从进程环境读取，安装器不写进任何配置文件（Qoder 项目级 `.qoder/.mcp.json` 里的 `env` 也是空对象）。长期生效用 shell 启动文件或系统环境变量注入；客户端若另有环境变量配置机制，按该端文档设置。
 
 | 变量 | 作用 |
 | --- | --- |
@@ -73,12 +96,12 @@ rg -n "<关键词>" docs/wiki   # qmd 不可用时的回退
 npm test    # node --test test/*.test.mjs
 ```
 
-测试会调用真实 `qmd` 做 init / collection / update，本机无 qmd 时自动跳过，不阻塞。
+`test/wiki-memory.test.mjs` 会调用真实 `qmd` 做 init / collection / update，本机无 qmd 时自动跳过，不阻塞；`test/install.test.mjs` 在临时 HOME 下运行，不碰真实客户端配置。
 
 ## 与源仓库的差异
 
-- **不含安装器**：源仓库用单体 CLI `bin/install.mjs` 一次分发 skills、9 个 hook 目录、规则与 MCP 到六端，其中 wiki-memory 只占一小段。抽出来会是无法运行的残件，因此本仓库只提供 `snippets/` 配置示例与上面的手工安装步骤。
-- **wiki 页面是主题子集**：源仓库 `docs/wiki/` 有 59 篇内容页（另含 `index.md` 与 `log.md`），本仓库只取 15 页。以下页面被复制页引用但未包含，链接在本仓库内不可解析，需要时回到源仓库查看：
+- **安装器只覆盖 hooks 与 MCP**：源仓库的单体 CLI `bin/install.mjs` 一次分发 skills、9 个 hook 目录、规则、MCP 与压缩配置到六端；本仓库的 `bin/install.mjs` 只装 wiki-memory hooks 与 qmd MCP，知识库规则文件由使用者自己复制替换。
+- **wiki 页面是主题子集**：源仓库 `docs/wiki/` 有 59 篇内容页（另含 `index.md` 与 `log.md`），本仓库复制 15 页，另有本仓库自有的 [安装器页](docs/wiki/entities/wiki-memory-installer.md)。以下页面被复制页引用但未包含，链接在本仓库内不可解析，需要时回到源仓库查看：
 
   | 未包含页面 | 被哪些页面引用 |
   | --- | --- |
@@ -93,7 +116,7 @@ npm test    # node --test test/*.test.mjs
   | `queries/windows-shell-pitfalls.md` | wiki-memory hook、qmd get 路径解析 |
 
 - **`rules/AGENTS.md` 只收录知识库相关章节，且已重新编号**：收录源文件第 0（核心规则卡相关条款）、1.1、2（工作原则相关条款）、6（git 的知识库相关条款）、8（知识沉淀特化）、9、10、11、12（qmd / glow / 命令行 / anydoc）、13、14（第 2–4 步）章，删去与知识库无关的通用工程规范（语言与输出、代码风格、测试与检查、会话架构、git 的分支与 PR 流程、环境规范，以及 safe-guard、output-filter、core-rules、context-compact 等 hook）。内容按本仓库重新连续编号（章 0–10、小节与条款亦连续）；开头写明本文件是知识库规则的唯一权威来源与角色。文件按通用规则写，不含指向本仓库页面的链接，工具细节按知识库 `entities/`、`queries/` 定位。
-- **复制页内仍有指向源仓库的引用**：除上表 9 篇页面外，`entities/qmd.md` 与 `decisions/qmd-native-mcp-required.md` 引用了源仓库代码文件 `bin/mcp-install.mjs`（该链接写作 `../../bin/mcp-install.mjs`，在源仓库里相对路径也少写一层，已指向不存在的位置）。本仓库不含 `bin/`，这类引用统一按源仓库处理。
+- **复制页内仍有指向源仓库的引用**：除上表 9 篇页面外，`entities/qmd.md` 与 `decisions/qmd-native-mcp-required.md` 引用了源仓库代码文件 `bin/mcp-install.mjs`（该链接写作 `../../bin/mcp-install.mjs`，在源仓库里相对路径也少写一层，已指向不存在的位置）。本仓库只有 `bin/install.mjs`，不含 `bin/mcp-install.mjs`，这类引用统一按源仓库处理。
 - **内容快照，不与源仓库双向同步**：复制件在初始化提交（基线 commit `9589405`）时与源仓库逐字节一致；源仓库此后对 `docs/wiki/entities/wiki-memory-hook.md` 追加了本次拆分的变更记录（其中链接的 `decisions/llm-wiki-repo-split.md` 只存在于源仓库），本仓库未同步这类增量，需要最新内容时回源仓库取。
 
 ## 许可

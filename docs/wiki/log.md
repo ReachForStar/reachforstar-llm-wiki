@@ -29,3 +29,11 @@
 - 改为通用规则：去掉指向本仓库页面的相对链接与来源、配套阅读、hook 未随附的说明；工具细节改为「见知识库 `entities/`、`queries/` 对应页面」表述，来源记在 `README.md`。
 - 校验：章 / 小节 / 条款 / 步骤引用审计 0 处问题，文件内已无仓库相对链接；`marked` 渲染确认有序列表编号连续、frontmatter 示例嵌套正确。
 - 关联：`README.md`「与源仓库的差异」改为说明重新编号后的收录范围与整理边界。
+
+## [2026-11-03] feat | 新增 hooks/MCP 安装器并重写 README 安装章节
+
+- 新增 `bin/install.mjs`：只装 wiki-memory hooks 与 qmd MCP，支持 pi / Claude Code / Codex / OpenCode / Qoder CLI；参数 `--agent`、`--type hooks|mcp`、`--dry-run`、`--yes`、`--no-backup`、`--list`。规则文件不走安装器，由使用者自己复制替换。
+- 落点：pi `extensions/wiki-memory.ts`；claude/codex/qoder 共享脚本 `~/.wiki-memory/wiki-memory-hook.mjs` 并合并 `settings.json` / `hooks.json` 的 `hooks.SessionStart`；OpenCode `plugins/`；qmd MCP 由 pi 合 `mcp.json`、claude/codex 走各自 `mcp add`、OpenCode 插件注入、Qoder 由 hook 写项目级 `.qoder/.mcp.json`。
+- 契约：内容相同不动、覆盖前备份 `<文件>.bak-<时间戳>`、JSON 合并保留用户其他字段、重复执行幂等、`--dry-run` 不写文件。
+- 新增 `test/install.test.mjs`（9 个用例）覆盖五端落点、保留既有 hook 与其他字段、超时纠正、幂等、dry-run、pi MCP 合并、CLI 缺失提示与参数校验；`npm test` 共 12 个用例全绿。
+- 文档：README 安装章节改为「规则自己替换 + 安装器装 hooks/MCP」，含五端落点表与生效条件；`hooks/wiki-memory/README.md` 安装片段同步；新增实体页 [wiki-memory 安装器](entities/wiki-memory-installer.md)，索引与总览同步更新。

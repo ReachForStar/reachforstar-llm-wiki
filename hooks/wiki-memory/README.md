@@ -44,7 +44,7 @@
 - **索引范围**：项目本地 `docs/wiki`（集合名 `wiki`，`<项目根>/.qmd/` 为 qmd 项目索引目录，建议加入项目 `.gitignore`）。
 - **离线**：`init` / `collection add` / `context add` / `update` / `search` 全程本地，不下载模型。`qmd embed`（向量）由本 hook 在会话开始**后台触发**（不阻塞会话；**按项目 1 小时冷却**，上次没跑完（pending>0）时冷却内也自动重试；`WIKI_MEMORY_EMBED=0` 关闭），首次会下载约 2GB 本地模型到 `~/.cache/qmd/models`（网络受限可先设 `HF_ENDPOINT=https://hf-mirror.com`）；`qmd query`（语义检索）首次另下载重排/扩写模型。
 - **降级**：qmd 未安装、超时或刷新失败时，导航里如实标注状态并给 `rg -n "<关键词>" docs/wiki` 回退，不阻断会话。
-- **原生工具（必选）**：`qmd mcp`（暴露 `query`/`get`/`multi_get`/`status`），安装器安装 hooks 时自动注册四端（OpenCode 经插件 V1 config hook / V2 mcp.transform 注入 `mcp.qmd`，不改 `opencode.json`），见仓库 README「知识库消费机制」。
+- **原生工具（必选）**：`qmd mcp`（暴露 `query`/`get`/`multi_get`/`status`）。pi 合 `mcp.json`，Claude Code / Codex 走各自 `mcp add`，OpenCode 经插件 V1 config hook / V2 mcp.transform 注入 `mcp.qmd`（不改 `opencode.json`），Qoder 由 hook 写项目级 `.qoder/.mcp.json`；见仓库 README「安装」。
 
 ## 开关
 
@@ -65,17 +65,27 @@
 
 ## 安装
 
+用仓库根目录的安装器（只装 hooks 与 qmd MCP，不改知识库规则文件）：
+
+```bash
+node ../../bin/install.mjs --dry-run   # 预览将要改动的文件
+node ../../bin/install.mjs --yes       # 装 hooks + qmd MCP
+node ../../bin/install.mjs --list      # 查看各端落点
+```
+
+手工安装（不使用安装器）：
+
 ```bash
 # pi
 cp wiki-memory.ts ~/.pi/agent/extensions/
 
-# Claude Code / Codex
+# Claude Code / Codex / Qoder：共享脚本 + 合并 SessionStart 配置
 mkdir -p ~/.wiki-memory && cp wiki-memory-hook.mjs ~/.wiki-memory/
+# 把 snippets/claude-settings.json 的 hooks 合并进 ~/.claude/settings.json
+# 把 snippets/codex-hooks.json 的 hooks 合并进 ~/.codex/hooks.json
 ```
 
-再把 `snippets/claude-settings.json` 的 `hooks` 合并进 `~/.claude/settings.json`，或把 `snippets/codex-hooks.json` 的 `hooks` 合并进 `~/.codex/hooks.json`。
-
-> Codex 对 hook 有信任校验：首次启动交互模式会提示信任确认，确认后生效。
+> Codex 对 hook 有信任校验：首次启动交互模式会提示信任确认，确认后生效；Qoder CLI 只在会话启动时读 settings.json，改后需重启。
 
 ## 依赖
 
